@@ -13,3 +13,6 @@ Let's implement a simple service in Go that will:
   * Use the `scratch` image as the runtime
   * The Docker image in the Docker Compose file will be read-only
   * The Redis server will be hosted externally, so no need to include it in the Docker Compose file
+* Be configurable via configuration file. Provide an example, but gitignore the real file.  Don't store sensitive information in this file.
+* Have a `.env` file to store sensitive information (ie REDIS_PASSWORD).  Provide an example but gitignore the real file.
+
