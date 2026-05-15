@@ -14,3 +14,4 @@ Let's implement a simple CLI tool in Go that will:
 * Update the README appropriately
 * Include a Makefile and a ci.yaml file, and have a CI badge in the README
 * Use Cobra framework
+* Ensure the cli tool binary is gitignored.
