@@ -10,7 +10,7 @@ Let's implement a simple service in Go that will:
 * Be written in the latest version of Go
   * Do not use vendoring
 * Have a Dockerfile and Docker Compose file
-  * Use the `scratch` image as the runtime
+  * Use the `distroless` image as the runtime
   * The Docker image in the Docker Compose file will be read-only
   * The Redis server will be hosted externally, so no need to include it in the Docker Compose file
 * Be configurable via configuration file. Provide an example, but gitignore the real file.  Don't store sensitive information in this file.
