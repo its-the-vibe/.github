@@ -77,3 +77,18 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Send Webhook Notification with Basic Auth
+        if: steps.prep.outputs.should_push == 'true'
+        run: |
+          curl -X POST "${{ secrets.WEBHOOK_URL }}" \
+            -u "${{ secrets.WEBHOOK_USER }}:${{ secrets.WEBHOOK_PASSWORD }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "event": "image_pushed",
+              "repository": "${{ github.repository }}",
+              "ref": "${{ github.ref_name }}",
+              "sha": "${{ github.sha }}",
+              "image": "${{ env.REGISTRY }}/${{ github.repository }}",
+              "tags": ${{ toJson(steps.meta.outputs.tags) }}
+            }'
