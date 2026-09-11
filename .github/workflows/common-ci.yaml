@@ -2,6 +2,12 @@ name: Common CI
 
 on:
   workflow_call:
+    inputs:
+      feature-build-label:
+        description: Pull request label that enables publishing feature branch images
+        required: false
+        type: string
+        default: feature
 
 env:
   REGISTRY: ghcr.io
@@ -38,14 +44,22 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      # Determine if this run should push (only on main or non-PR branches)
+      # Determine if this run should push (all non-PR branches plus labeled pull requests)
       - name: Determine push trigger
         id: prep
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ] || [ -n "${{ github.event.pull_request.number }}" ]; then
-            echo "should_push=false" >> $GITHUB_OUTPUT
-          else
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "should_push=true" >> $GITHUB_OUTPUT
+            echo "feature_tag=" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, inputs.feature-build-label) }}" = "true" ]; then
+            echo "should_push=true" >> $GITHUB_OUTPUT
+            echo "feature_tag=feature-pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          elif [ -z "${{ github.event.pull_request.number }}" ]; then
+            echo "should_push=true" >> $GITHUB_OUTPUT
+            echo "feature_tag=" >> $GITHUB_OUTPUT
+          else
+            echo "should_push=false" >> $GITHUB_OUTPUT
+            echo "feature_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Log in to GHCR
@@ -66,6 +80,7 @@ jobs:
             type=ref,event=branch
             type=sha,format=short
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=${{ steps.prep.outputs.feature_tag }},enable=${{ steps.prep.outputs.feature_tag != '' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
