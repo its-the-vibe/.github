@@ -81,6 +81,7 @@ jobs:
             type=sha,format=short
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=${{ steps.prep.outputs.feature_tag }},enable=${{ steps.prep.outputs.feature_tag != '' }}
+            type=raw,value=feature,enable=${{ steps.prep.outputs.feature_tag != '' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
