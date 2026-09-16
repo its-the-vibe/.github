@@ -42,7 +42,7 @@ jobs:
 
       - name: Run mini-swe-agent
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.LLM_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.PREPAID_GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mini-swe-agent \
