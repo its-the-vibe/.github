@@ -47,7 +47,8 @@ jobs:
         run: |
           mini-swe-agent \
             --model "gemini/gemini-flash-latest" \
-            --task "${{ inputs.issue_url }}"
+            --task "${{ inputs.issue_url }}" \
+            --exit-immediately
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
