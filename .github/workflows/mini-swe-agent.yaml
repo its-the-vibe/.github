@@ -35,9 +35,16 @@ jobs:
         with:
           python-version: "3.14"
 
+      - uses: actions/setup-go@v7
+        with:
+            go-version: "1.27"
+            check-latest: true
+
+      - name: Download dependencies
+        run: go mod download
+
       - name: Install mini-swe-agent
         run: |
-          python -m pip install --upgrade pip
           pip install mini-swe-agent
 
       - name: Run mini-swe-agent
