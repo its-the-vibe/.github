@@ -41,7 +41,7 @@ jobs:
             check-latest: true
 
       - name: Download dependencies
-        run: go mod download
+        run: go mod download | echo "no go.mod found, skipping"
 
       - name: Install mini-swe-agent
         run: |
