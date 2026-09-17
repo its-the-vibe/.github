@@ -52,6 +52,11 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.PREPAY_GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # 1. Bypass the setup prompt by creating the global config file beforehand
+          mkdir -p /home/runner/.config/mini-swe-agent
+          touch /home/runner/.config/mini-swe-agent/.env
+
+          # 2. Run the mini-swe-agent with the specified parameters
           mini-swe-agent \
             --yolo \
             --model "gemini/gemini-flash-latest" \
