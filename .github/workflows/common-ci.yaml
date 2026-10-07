@@ -96,15 +96,36 @@ jobs:
 
       - name: Send Webhook Notification with Basic Auth
         if: steps.prep.outputs.should_push == 'true'
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          WEBHOOK_USER: ${{ secrets.WEBHOOK_USER }}
+          WEBHOOK_PASSWORD: ${{ secrets.WEBHOOK_PASSWORD }}
+          TAGS_RAW: ${{ steps.meta.outputs.tags }}
         run: |
-          curl -X POST "${{ secrets.WEBHOOK_URL }}" \
-            -u "${{ secrets.WEBHOOK_USER }}:${{ secrets.WEBHOOK_PASSWORD }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "event": "image_pushed",
-              "repository": "${{ github.repository }}",
-              "ref": "${{ github.ref_name }}",
-              "sha": "${{ github.sha }}",
-              "image": "${{ env.REGISTRY }}/${{ github.repository }}",
-              "tags": ${{ toJson(steps.meta.outputs.tags) }}
-            }'
+          # Cleanly format tags as a JSON array without breaking bash strings
+          TAGS_JSON=$(echo "$TAGS_RAW" | jq -R . | jq -s .)
+
+          PAYLOAD=$(jq -n \
+            --arg event "image_pushed" \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --arg ref "$GITHUB_REF_NAME" \
+            --arg sha "$GITHUB_SHA" \
+            --arg image "${{ env.REGISTRY }}/$GITHUB_REPOSITORY" \
+            --argjson tags "$TAGS_JSON" \
+            '{
+              event: $event,
+              repository: $repository,
+              ref: $ref,
+              sha: $sha,
+              image: $image,
+              tags: $tags
+            }')
+
+          curl -X POST "$WEBHOOK_URL" \
+                -u "$WEBHOOK_USER:$WEBHOOK_PASSWORD" \
+                -H "Content-Type: application/json" \
+                -H "ngrok-skip-browser-warning: true" \
+                --retry 5 \
+                --retry-delay 3 \
+                --retry-connrefused \
+                -d "$PAYLOAD"
